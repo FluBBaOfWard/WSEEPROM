@@ -1,2 +1,2 @@
 # WSEEPROM
-EEPROM chip emulator for the Wonderswan
+WonderSwan EEPROM chip emulator for ARM 32.
