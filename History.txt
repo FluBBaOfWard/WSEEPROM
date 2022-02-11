@@ -1,0 +1,23 @@
+WSEEPROM revision history
+-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+V0.5.0 - 2022-02-11 (FluBBa)
+	Refactored code to work directly from C.
+	First standalone release.
+
+V0.3.0 - 2021-11-21 (FluBBa)
+	Fixed masking of EEPROM address.
+	Fixed checking of command.
+
+V0.2.0 - 2021-11-14 (FluBBa)
+	Added more documentation.
+	Fixed masking of command.
+	Added reset command.
+
+V0.1.0 - 2021-11-10 (FluBBa)
+	First release.
+
+V0.0.0 - 2021-11-08 (FluBBa)
+	Started coding.
+
