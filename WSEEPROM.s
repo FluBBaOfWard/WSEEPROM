@@ -9,7 +9,7 @@
 //  Copyright © 2021-2022 Fredrik Ahlström. All rights reserved.
 //
 
-#include "EEPROM.i"
+#include "WSEEPROM.i"
 
 	.global wsEepromReset
 	.global wsEepromSetSize
