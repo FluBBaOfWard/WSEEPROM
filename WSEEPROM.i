@@ -8,7 +8,7 @@
 // ASM header for the Bandai WonderSwan EEPROM emulator
 
 	eeptr		.req r0
-						;@ EEPROM.s
+						;@ WSEEPROM.s
 	.struct 0
 eepMemory:		.long 0
 wsEepromState:

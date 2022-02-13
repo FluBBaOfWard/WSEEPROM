@@ -15,8 +15,8 @@
 //  93LC76 =>  8192 cells => 1024 x 8-bit or  512 x 16-bit
 //  93LC86 => 16384 cells => 2048 x 8-bit or 1024 x 16-bit
 
-#ifndef EEPROM_HEADER
-#define EEPROM_HEADER
+#ifndef WSEEPROM_HEADER
+#define WSEEPROM_HEADER
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,4 +77,4 @@ void wsEepromCommandW(WSEEPROM *chip, int value);
 } // extern "C"
 #endif
 
-#endif // EEPROM_HEADER
+#endif // WSEEPROM_HEADER
