@@ -90,18 +90,17 @@ wsEepromSaveState:		;@ In r0=destination, r1=eeptr. Out r0=state size.
 	mov r4,r0					;@ Store destination
 	mov r5,r1					;@ Store eeptr (r1)
 
-	ldr r1,[r5,#eepMemory]
-	ldr r2,[r5,#eepSize]
-	bl memcpy
-
-	ldr r2,[r5,#eepSize]
-	add r0,r4,r2
 	add r1,r5,#wsEepromState
 	mov r2,#(wsEepromStateEnd-wsEepromState)
 	bl memcpy
 
+	add r0,r4,#(wsEepromStateEnd-wsEepromState)
+	ldr r1,[r5,#eepMemory]
+	ldr r2,[r5,#eepSize]
+	bl memcpy
+
 	ldmfd sp!,{r4,r5,lr}
-	ldr r0,=0x800+(wsEepromStateEnd-wsEepromState)
+	ldr r0,=(wsEepromStateEnd-wsEepromState)+0x800
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
@@ -111,14 +110,13 @@ wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
 	mov r5,r0					;@ Store eeptr (r0)
 	mov r4,r1					;@ Store source
 
-	ldr r0,[r5,#eepMemory]
-	ldr r2,[r5,#eepSize]
+	add r0,r5,#wsEepromState
+	mov r2,#(wsEepromStateEnd-wsEepromState)
 	bl memcpy
 
+	ldr r0,[r5,#eepMemory]
+	add r1,r4,#(wsEepromStateEnd-wsEepromState)
 	ldr r2,[r5,#eepSize]
-	add r0,r5,#wsEepromState
-	add r1,r4,r2
-	mov r2,#(wsEepromStateEnd-wsEepromState)
 	bl memcpy
 
 	ldmfd sp!,{r4,r5,lr}
@@ -126,7 +124,7 @@ wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
 wsEepromGetStateSize:	;@ Out r0=state size.
 	.type   wsEepromGetStateSize STT_FUNC
 ;@----------------------------------------------------------------------------
-	ldr r0,=0x800+(wsEepromStateEnd-wsEepromState)
+	ldr r0,=(wsEepromStateEnd-wsEepromState)+0x800
 	bx lr
 
 	.pool

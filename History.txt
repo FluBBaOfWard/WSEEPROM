@@ -2,6 +2,9 @@ WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+V0.5.1 - 2022-04-05 (FluBBa)
+	Tweaked SaveState handling.
+
 V0.5.0 - 2022-02-11 (FluBBa)
 	Refactored code to work directly from C.
 	First standalone release.
