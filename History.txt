@@ -2,6 +2,9 @@ WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+V0.6.0 - 2023-02-24 (FluBBa)
+	Fixed initialization of status register.
+
 V0.5.1 - 2022-04-05 (FluBBa)
 	Tweaked SaveState handling.
 

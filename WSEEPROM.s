@@ -6,7 +6,7 @@
 //  WSEEPROM
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2022 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
 //
 
 #include "WSEEPROM.i"
@@ -49,6 +49,8 @@ wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
 	bl memclr_					;@ Clear WSEeprom state
 
 	ldmfd sp!,{r0-r2,lr}
+	mov r3,#2
+	strb r3,[eeptr,#eepStatus]
 	str r2,[eeptr,#eepMemory]
 ;@----------------------------------------------------------------------------
 wsEepromSetSize:		;@ r0 = eeptr, r1 = size(in bytes)
@@ -203,8 +205,8 @@ wsEepromCommandW:		;@ r0=eeptr, r1 = value
 	beq wsEepromDoWrite
 	cmp r1,#0x40	;@ Erase
 	beq wsEepromDoErase
-	cmp r1,#0x80	;@ Reset
-	beq wsEepromDoReset
+	cmp r1,#0x80	;@ Write protect (only internal EEPROM)
+	beq wsEepromDoProtect
 	bx lr			;@ Only 1 bit can be set
 ;@----------------------------------------------------------------------------
 wsEepromDoRead:
@@ -258,7 +260,7 @@ wsEepromDoErase:
 	strb r1,[eeptr,#eepStatus]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromDoReset:
+wsEepromDoProtect:
 ;@----------------------------------------------------------------------------
 	mov r11,r11
 	mov r1,#8
