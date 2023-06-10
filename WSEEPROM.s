@@ -41,7 +41,7 @@
 	.align 2
 ;@----------------------------------------------------------------------------
 wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
-	.type   wsEepromReset STT_FUNC
+	.type wsEepromReset STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0-r2,lr}
 
@@ -54,7 +54,7 @@ wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
 	str r2,[eeptr,#eepMemory]
 ;@----------------------------------------------------------------------------
 wsEepromSetSize:		;@ r0 = eeptr, r1 = size(in bytes)
-	.type   wsEepromSetSize STT_FUNC
+	.type wsEepromSetSize STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r2,#0x80				;@ 1kbit
 	mov r3,#6
@@ -86,7 +86,7 @@ wsEepromWriteByte:		;@ r0 = eeptr, r1 = offset, r2 = value
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromSaveState:		;@ In r0=destination, r1=eeptr. Out r0=state size.
-	.type   wsEepromSaveState STT_FUNC
+	.type wsEepromSaveState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,lr}
 	mov r4,r0					;@ Store destination
@@ -106,7 +106,7 @@ wsEepromSaveState:		;@ In r0=destination, r1=eeptr. Out r0=state size.
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
-	.type   wsEepromLoadState STT_FUNC
+	.type wsEepromLoadState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,lr}
 	mov r5,r0					;@ Store eeptr (r0)
@@ -124,7 +124,7 @@ wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
 	ldmfd sp!,{r4,r5,lr}
 ;@----------------------------------------------------------------------------
 wsEepromGetStateSize:	;@ Out r0=state size.
-	.type   wsEepromGetStateSize STT_FUNC
+	.type wsEepromGetStateSize STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldr r0,=(wsEepromStateEnd-wsEepromState)+0x800
 	bx lr
@@ -132,31 +132,31 @@ wsEepromGetStateSize:	;@ Out r0=state size.
 	.pool
 ;@----------------------------------------------------------------------------
 wsEepromDataLowR:		;@ r0=eeptr
-	.type   wsEepromDataLowR STT_FUNC
+	.type wsEepromDataLowR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepData]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDataHighR:		;@ r0=eeptr
-	.type   wsEepromDataHighR STT_FUNC
+	.type wsEepromDataHighR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepData+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromAddressLowR:	;@ r0=eeptr
-	.type   wsEepromAddressLowR STT_FUNC
+	.type wsEepromAddressLowR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepAddress]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromAddressHighR:	;@ r0=eeptr
-	.type   wsEepromAddressHighR STT_FUNC
+	.type wsEepromAddressHighR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepAddress+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromStatusR:	;@ r0=eeptr
-	.type   wsEepromStatusR STT_FUNC
+	.type wsEepromStatusR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepStatus]
 	bx lr
@@ -170,31 +170,31 @@ wsEepromStatusR:	;@ r0=eeptr
 // bit(7) = resetPending;
 ;@----------------------------------------------------------------------------
 wsEepromDataLowW:		;@ , r0=eeptr, r1 = value
-	.type   wsEepromDataLowW STT_FUNC
+	.type wsEepromDataLowW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepData]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDataHighW:		;@ r0=eeptr, r1 = value
-	.type   wsEepromDataHighW STT_FUNC
+	.type wsEepromDataHighW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepData+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromAddressLowW:	;@ r0=eeptr, r1 = value
-	.type   wsEepromAddressLowW STT_FUNC
+	.type wsEepromAddressLowW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepAddress]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromAddressHighW:	;@ r0=eeptr, r1 = value
-	.type   wsEepromAddressHighW STT_FUNC
+	.type wsEepromAddressHighW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepAddress+1]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromCommandW:		;@ r0=eeptr, r1 = value
-	.type   wsEepromCommandW STT_FUNC
+	.type wsEepromCommandW STT_FUNC
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xF0
 	strb r1,[eeptr,#eepCommand]
