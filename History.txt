@@ -2,6 +2,10 @@ WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+V0.6.2 - 2023-09-23 (FluBBa)
+	Added write protect for internal EEPROM.
+	Fixed handling of status flags a bit.
+
 V0.6.0 - 2023-02-24 (FluBBa)
 	Fixed initialization of status register.
 

@@ -5,9 +5,11 @@
 //  Created by Fredrik Ahlström on 2021-11-10.
 //  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
 //
-// Bandai WonderSwan EEPROM emulation
+// Bandai WonderSwan EEPROM adapter emulation
 // CSI 93C86S
 // Seiko S-29530
+// STMicroElectronic M93Cx6
+// https://www.st.com/resource/en/datasheet/m93c46-w.pdf
 // Microchip 93LCx6
 //  93LC46 =>  1024 cells =>  128 x 8-bit or   64 x 16-bit
 //  93LC56 =>  2048 cells =>  256 x 8-bit or  128 x 16-bit
@@ -23,20 +25,20 @@ extern "C" {
 #endif
 
 typedef struct {
-	void *eepMemory;
-	int eepSize;	// Size in bytes
-	int eepMask;	// Address mask (size - 1)
-	int eepAddress;	// Current address
-	short eepData;	// Current data value
-	u8 eepStatus;	// Status value
-	u8 eepAdrBits;	// Number of bits in the address
-	u8 eepMode;
-	u8 eepCommand;
-	u8 eepWidth;	// bus width in bits (8 or 16)
-	u8 eepPadding1;
+	void *memory;
+	int size;	// Size in bytes
+	int mask;	// Address mask (size - 1)
+	int address;	// Current address
+	short data;	// Current data value
+	u8 status;	// Status value
+	u8 adrBits;	// Number of bits in the address
+	u8 mode;
+	u8 command;
+	u8 protect;	// Protect possible
+	u8 padding1;
 } WSEEPROM;
 
-void wsEepromReset(WSEEPROM *chip, int size, void *mem);
+void wsEepromReset(WSEEPROM *chip, int size, void *mem, bool allowProtect);
 void wsEepromSetSize(WSEEPROM *chip, int size);
 void wsEepromWriteByte(WSEEPROM *chip, int offset, int value);
 

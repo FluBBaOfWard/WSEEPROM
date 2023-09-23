@@ -20,7 +20,7 @@ eepStatus:		.byte 0		;@ Status value
 eepAdrBits:		.byte 0		;@ Number of bits in the address
 eepMode:		.byte 0		;@
 eepCommand:		.byte 0		;@
-eepWidth:		.byte 0		;@ Bus width in bits (8 or 16)
+eepProtect:		.byte 0		;@ Protect possible
 eepPadding1:	.space 1	;@
 wsEepromStateEnd:
 

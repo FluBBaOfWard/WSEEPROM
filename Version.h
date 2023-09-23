@@ -6,4 +6,4 @@
 //  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
 //
 
-#define WSEEPROMVERSION "V0.6.0"
+#define WSEEPROMVERSION "V0.6.2"

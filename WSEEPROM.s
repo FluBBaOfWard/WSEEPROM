@@ -41,39 +41,37 @@
 	.align 2
 ;@----------------------------------------------------------------------------
 wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
+						;@ r3 = allow protect (!= 0)
 	.type wsEepromReset STT_FUNC
 ;@----------------------------------------------------------------------------
-	stmfd sp!,{r0-r2,lr}
+	stmfd sp!,{r0-r3,lr}
 
 	ldr r1,=wsEepromSize/4
 	bl memclr_					;@ Clear WSEeprom state
 
-	ldmfd sp!,{r0-r2,lr}
-	mov r3,#2
-	strb r3,[eeptr,#eepStatus]
+	ldmfd sp!,{r0-r3,lr}
 	str r2,[eeptr,#eepMemory]
+	strb r3,[eeptr,#eepProtect]
 ;@----------------------------------------------------------------------------
 wsEepromSetSize:		;@ r0 = eeptr, r1 = size(in bytes)
 	.type wsEepromSetSize STT_FUNC
 ;@----------------------------------------------------------------------------
-	mov r2,#0x80				;@ 1kbit
-	mov r3,#6
+	mov r3,#6					;@ 1kbit
+	mov r2,#0x80
 	cmp r1,#0x100				;@ 2kbit
+	movpl r3,#8
 	movpl r2,#0x100
-	movpl r3,#7
 	cmp r1,#0x200				;@ 4kbit
 	movpl r2,#0x200
-	movpl r3,#8
 	cmp r1,#0x400				;@ 8kbit
+	movpl r3,#10
 	movpl r2,#0x400
-	movpl r3,#9
 	cmp r1,#0x800				;@ 16kbit
 	movpl r2,#0x800
-	movpl r3,#10
+	strb r3,[eeptr,#eepAdrBits]
 	str r2,[eeptr,#eepSize]
 	sub r2,r2,#1
 	str r2,[eeptr,#eepMask]
-	strb r3,[eeptr,#eepAdrBits]
 
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -158,16 +156,20 @@ wsEepromAddressHighR:	;@ r0=eeptr
 wsEepromStatusR:	;@ r0=eeptr
 	.type wsEepromStatusR STT_FUNC
 ;@----------------------------------------------------------------------------
-	ldrb r0,[eeptr,#eepStatus]
+	ldrb r2,[eeptr,#eepStatus]
+	ldrb r1,[eeptr,#eepCommand]
+	mov r3,r2
+	cmp r1,#0x10	;@ Read
+	orreq r3,r3,#1	;@ Read done
+	cmp r1,#0x20	;@ Write
+	cmpne r1,#0x40	;@ Erase
+	orreq r3,r3,#2	;@ W/E done
+	strb r3,[eeptr,#eepStatus]
+	mov r0,r2
 	bx lr
-// bit(0) = readReady;
-// bit(1) = writeReady;
-// bit(2) = eraseReady;
-// bit(3) = resetReady;
-// bit(4) = readPending;
-// bit(5) = writePending;
-// bit(6) = erasePending;
-// bit(7) = resetPending;
+// bit(0) = read ready;
+// bit(1) = Idle;
+// bit(7) = protect enabled;
 ;@----------------------------------------------------------------------------
 wsEepromDataLowW:		;@ , r0=eeptr, r1 = value
 	.type wsEepromDataLowW STT_FUNC
@@ -214,7 +216,6 @@ wsEepromDoRead:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	and r3,r3,#0x7
 	cmp r3,#0x6
 	bxne lr
 	ldr r3,[eeptr,#eepMask]
@@ -222,7 +223,8 @@ wsEepromDoRead:
 	ldr r3,[eeptr,#eepMemory]
 	ldrh r1,[r3,r2]
 	strh r1,[eeptr,#eepData]
-	mov r1,#1
+	ldrb r1,[eeptr,#eepStatus]
+	bic r1,r1,#1
 	strb r1,[eeptr,#eepStatus]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -231,16 +233,19 @@ wsEepromDoWrite:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	and r3,r3,#0x7
 	cmp r3,#0x5
 	bxne lr
+	ldrb r1,[eeptr,#eepStatus]
+	tst r1,r1,lsr#8				;@ Write protect over 0x30?
+	cmpcs r2,#0x30
+	bxcs lr
+	bic r1,r1,#2
+	strb r1,[eeptr,#eepStatus]
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
 	ldr r3,[eeptr,#eepMemory]
 	ldrh r1,[eeptr,#eepData]
 	strh r1,[r3,r2]
-	mov r1,#2
-	strb r1,[eeptr,#eepStatus]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDoErase:
@@ -248,22 +253,27 @@ wsEepromDoErase:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	and r3,r3,#0x7
 	cmp r3,#0x7				;@ Erase?
 	bxne lr
+	ldrb r1,[eeptr,#eepStatus]
+	tst r1,r1,lsr#8				;@ Write protect over 0x30?
+	cmpcs r2,#0x30
+	bxcs lr
+	bic r1,r1,#2
+	strb r1,[eeptr,#eepStatus]
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
 	ldr r3,[eeptr,#eepMemory]
 	mov r1,#-1
 	strh r1,[r3,r2]
-	mov r1,#4
-	strb r1,[eeptr,#eepStatus]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDoProtect:
 ;@----------------------------------------------------------------------------
-	mov r11,r11
-	mov r1,#8
+	ldrb r1,[eeptr,#eepProtect]
+	cmp r1,#0
+	ldrb r1,[eeptr,#eepStatus]
+	orrne r1,r1,#0x80
 	strb r1,[eeptr,#eepStatus]
 	bx lr
 
