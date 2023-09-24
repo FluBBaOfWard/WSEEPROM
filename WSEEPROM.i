@@ -25,6 +25,7 @@ eepPadding1:	.space 1	;@
 wsEepromStateEnd:
 
 wsEepromSize:
+	.previous
 
 ;@----------------------------------------------------------------------------
 
