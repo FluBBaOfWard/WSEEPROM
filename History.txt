@@ -2,6 +2,11 @@ WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
 
+V0.7.0 - 2024-05-30 (FluBBa)
+	Added support for Write Enable/Disable.
+	Fixed in/out buffer.
+	Fixed check of address when in protect mode.
+
 V0.6.2 - 2023-09-24 (FluBBa)
 	Added write protect for internal EEPROM.
 	Fixed handling of status flags a bit.

@@ -1,4 +1,4 @@
-# WSEEPROM V0.6.2
+# WSEEPROM V0.7.0
 
 WonderSwan EEPROM adapter emulator for ARM 32.
 
@@ -9,8 +9,8 @@ This is the part that takes the data from the WS port and communicates with the
 
 ## Projects that use this code
 
-* https://github.com/FluBBaOfWard/NitroSwan
-* https://github.com/FluBBaOfWard/SwanGBA
+* <https://github.com/FluBBaOfWard/NitroSwan>
+* <https://github.com/FluBBaOfWard/SwanGBA>
 
 ## Credits
 
@@ -18,4 +18,4 @@ Fredrik Ahlström
 
 X/Twitter @TheRealFluBBa
 
-https://www.github.com/FluBBaOfWard
+<https://www.github.com/FluBBaOfWard>

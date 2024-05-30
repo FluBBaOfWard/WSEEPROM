@@ -1,11 +1,14 @@
 //
 //  WSEEPROM.i
-//  WSEEPROM
+//  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
 //
-// ASM header for the Bandai WonderSwan EEPROM emulator
+
+#if !__ASSEMBLER__
+	#error This header file is only for use in assembly files!
+#endif
 
 	eeptr		.req r0
 						;@ WSEEPROM.s
@@ -15,13 +18,14 @@ wsEepromState:
 eepSize:		.long 0		;@ Size in bytes
 eepMask:		.long 0		;@ Address mask (size - 1)
 eepAddress:		.long 0		;@ Current address
-eepData:		.short 0	;@ Current data
+eepDataIn:		.short 0	;@ Current in data
+eepDataOut:		.short 0	;@ Current out data
 eepStatus:		.byte 0		;@ Status value
 eepAdrBits:		.byte 0		;@ Number of bits in the address
-eepMode:		.byte 0		;@
+eepWDS:			.byte 0		;@ Write disabled
 eepCommand:		.byte 0		;@
 eepProtect:		.byte 0		;@ Protect possible
-eepPadding1:	.space 1	;@
+eepPadding1:	.space 3	;@
 wsEepromStateEnd:
 
 wsEepromSize:

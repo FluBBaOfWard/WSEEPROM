@@ -1,13 +1,12 @@
-// Bandai WonderSwan EEPROM emulation
-
-#ifdef __arm__
 //
 //  WSEEPROM.s
-//  WSEEPROM
+//  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
 //
+
+#ifdef __arm__
 
 #include "WSEEPROM.i"
 
@@ -40,8 +39,8 @@
 #endif
 	.align 2
 ;@----------------------------------------------------------------------------
-wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
-						;@ r3 = allow protect (!= 0)
+wsEepromReset:				;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
+							;@ r3 = allow protect (!= 0)
 	.type wsEepromReset STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r0-r3,lr}
@@ -53,7 +52,7 @@ wsEepromReset:			;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
 	str r2,[eeptr,#eepMemory]
 	strb r3,[eeptr,#eepProtect]
 ;@----------------------------------------------------------------------------
-wsEepromSetSize:		;@ r0 = eeptr, r1 = size(in bytes)
+wsEepromSetSize:			;@ r0 = eeptr, r1 = size(in bytes)
 	.type wsEepromSetSize STT_FUNC
 ;@----------------------------------------------------------------------------
 	mov r3,#6					;@ 1kbit
@@ -75,7 +74,7 @@ wsEepromSetSize:		;@ r0 = eeptr, r1 = size(in bytes)
 
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromWriteByte:		;@ r0 = eeptr, r1 = offset, r2 = value
+wsEepromWriteByte:			;@ r0 = eeptr, r1 = offset, r2 = value
 ;@----------------------------------------------------------------------------
 	ldr r3,[eeptr,#eepMask]
 	and r1,r3,r1
@@ -83,7 +82,7 @@ wsEepromWriteByte:		;@ r0 = eeptr, r1 = offset, r2 = value
 	strb r2,[r3,r1]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromSaveState:		;@ In r0=destination, r1=eeptr. Out r0=state size.
+wsEepromSaveState:			;@ In r0=destination, r1=eeptr. Out r0=state size.
 	.type wsEepromSaveState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,lr}
@@ -103,7 +102,7 @@ wsEepromSaveState:		;@ In r0=destination, r1=eeptr. Out r0=state size.
 	ldr r0,=(wsEepromStateEnd-wsEepromState)+0x800
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
+wsEepromLoadState:			;@ In r0=eeptr, r1=source. Out r0=state size.
 	.type wsEepromLoadState STT_FUNC
 ;@----------------------------------------------------------------------------
 	stmfd sp!,{r4,r5,lr}
@@ -121,7 +120,7 @@ wsEepromLoadState:		;@ In r0=eeptr, r1=source. Out r0=state size.
 
 	ldmfd sp!,{r4,r5,lr}
 ;@----------------------------------------------------------------------------
-wsEepromGetStateSize:	;@ Out r0=state size.
+wsEepromGetStateSize:		;@ Out r0=state size.
 	.type wsEepromGetStateSize STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldr r0,=(wsEepromStateEnd-wsEepromState)+0x800
@@ -129,41 +128,41 @@ wsEepromGetStateSize:	;@ Out r0=state size.
 
 	.pool
 ;@----------------------------------------------------------------------------
-wsEepromDataLowR:		;@ r0=eeptr
+wsEepromDataLowR:			;@ r0=eeptr
 	.type wsEepromDataLowR STT_FUNC
 ;@----------------------------------------------------------------------------
-	ldrb r0,[eeptr,#eepData]
+	ldrb r0,[eeptr,#eepDataIn]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromDataHighR:		;@ r0=eeptr
+wsEepromDataHighR:			;@ r0=eeptr
 	.type wsEepromDataHighR STT_FUNC
 ;@----------------------------------------------------------------------------
-	ldrb r0,[eeptr,#eepData+1]
+	ldrb r0,[eeptr,#eepDataIn+1]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromAddressLowR:	;@ r0=eeptr
+wsEepromAddressLowR:		;@ r0=eeptr
 	.type wsEepromAddressLowR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepAddress]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromAddressHighR:	;@ r0=eeptr
+wsEepromAddressHighR:		;@ r0=eeptr
 	.type wsEepromAddressHighR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r0,[eeptr,#eepAddress+1]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromStatusR:	;@ r0=eeptr
+wsEepromStatusR:			;@ r0=eeptr
 	.type wsEepromStatusR STT_FUNC
 ;@----------------------------------------------------------------------------
 	ldrb r2,[eeptr,#eepStatus]
 	ldrb r1,[eeptr,#eepCommand]
 	mov r3,r2
-	cmp r1,#0x10	;@ Read
-	orreq r3,r3,#1	;@ Read done
-	cmp r1,#0x20	;@ Write
-	cmpne r1,#0x40	;@ Erase
-	orreq r3,r3,#2	;@ W/E done
+	cmp r1,#0x10				;@ Read
+	orreq r3,r3,#1				;@ Read done
+	cmp r1,#0x20				;@ Write
+	cmpne r1,#0x40				;@ Erase
+	orreq r3,r3,#2				;@ W/E done
 	strb r3,[eeptr,#eepStatus]
 	mov r0,r2
 	bx lr
@@ -171,45 +170,45 @@ wsEepromStatusR:	;@ r0=eeptr
 // bit(1) = Idle;
 // bit(7) = protect enabled;
 ;@----------------------------------------------------------------------------
-wsEepromDataLowW:		;@ , r0=eeptr, r1 = value
+wsEepromDataLowW:			;@ , r0=eeptr, r1 = value
 	.type wsEepromDataLowW STT_FUNC
 ;@----------------------------------------------------------------------------
-	strb r1,[eeptr,#eepData]
+	strb r1,[eeptr,#eepDataOut]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromDataHighW:		;@ r0=eeptr, r1 = value
+wsEepromDataHighW:			;@ r0=eeptr, r1 = value
 	.type wsEepromDataHighW STT_FUNC
 ;@----------------------------------------------------------------------------
-	strb r1,[eeptr,#eepData+1]
+	strb r1,[eeptr,#eepDataOut+1]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromAddressLowW:	;@ r0=eeptr, r1 = value
+wsEepromAddressLowW:		;@ r0=eeptr, r1 = value
 	.type wsEepromAddressLowW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepAddress]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromAddressHighW:	;@ r0=eeptr, r1 = value
+wsEepromAddressHighW:		;@ r0=eeptr, r1 = value
 	.type wsEepromAddressHighW STT_FUNC
 ;@----------------------------------------------------------------------------
 	strb r1,[eeptr,#eepAddress+1]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromCommandW:		;@ r0=eeptr, r1 = value
+wsEepromCommandW:			;@ r0=eeptr, r1 = value
 	.type wsEepromCommandW STT_FUNC
 ;@----------------------------------------------------------------------------
 	and r1,r1,#0xF0
 	strb r1,[eeptr,#eepCommand]
 
-	cmp r1,#0x10	;@ Read
+	cmp r1,#0x10				;@ Read
 	beq wsEepromDoRead
-	cmp r1,#0x20	;@ Write
+	cmp r1,#0x20				;@ Write
 	beq wsEepromDoWrite
-	cmp r1,#0x40	;@ Erase
+	cmp r1,#0x40				;@ Erase
 	beq wsEepromDoErase
-	cmp r1,#0x80	;@ Write protect (only internal EEPROM)
+	cmp r1,#0x80				;@ Write protect (only internal EEPROM)
 	beq wsEepromDoProtect
-	bx lr			;@ Only 1 bit can be set
+	bx lr						;@ Only 1 bit can be set
 ;@----------------------------------------------------------------------------
 wsEepromDoRead:
 ;@----------------------------------------------------------------------------
@@ -222,7 +221,7 @@ wsEepromDoRead:
 	and r2,r3,r2,lsl#1
 	ldr r3,[eeptr,#eepMemory]
 	ldrh r1,[r3,r2]
-	strh r1,[eeptr,#eepData]
+	strh r1,[eeptr,#eepDataIn]
 	ldrb r1,[eeptr,#eepStatus]
 	bic r1,r1,#1
 	strb r1,[eeptr,#eepStatus]
@@ -235,6 +234,10 @@ wsEepromDoWrite:
 	mov r3,r2,lsr r1
 	cmp r3,#0x5
 	bxne lr
+	bic r2,r2,r3,lsl r1
+	ldrb r1,[eeptr,#eepWDS]		;@ Write disabled?
+	cmp r1,#0
+	bxne lr
 	ldrb r1,[eeptr,#eepStatus]
 	tst r1,r1,lsr#8				;@ Write protect over 0x30?
 	cmpcs r2,#0x30
@@ -244,7 +247,7 @@ wsEepromDoWrite:
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
 	ldr r3,[eeptr,#eepMemory]
-	ldrh r1,[eeptr,#eepData]
+	ldrh r1,[eeptr,#eepDataOut]
 	strh r1,[r3,r2]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -253,7 +256,13 @@ wsEepromDoErase:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	cmp r3,#0x7				;@ Erase?
+	cmp r3,#0x4					;@ Sub Command?
+	beq wsEprSubCmd
+	cmp r3,#0x7					;@ Erase?
+	bxne lr
+	bic r2,r2,r3,lsl r1
+	ldrb r1,[eeptr,#eepWDS]		;@ Write disabled?
+	cmp r1,#0
 	bxne lr
 	ldrb r1,[eeptr,#eepStatus]
 	tst r1,r1,lsr#8				;@ Write protect over 0x30?
@@ -266,6 +275,17 @@ wsEepromDoErase:
 	ldr r3,[eeptr,#eepMemory]
 	mov r1,#-1
 	strh r1,[r3,r2]
+	bx lr
+
+wsEprSubCmd:
+	sub r1,r1,#2
+	mov r3,r2,lsr r1			;@ Sub command
+	ands r3,r3,#0xF				;@ 0=WDS
+	moveq r1,#1
+	strbeq r1,[eeptr,#eepWDS]
+	cmp r3,#0x3
+	moveq r1,#0
+	strbeq r1,[eeptr,#eepWDS]
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDoProtect:

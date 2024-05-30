@@ -1,16 +1,16 @@
 //
 //  WSEEPROM.h
-//  WSEEPROM
+//  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2023 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
 //
-// Bandai WonderSwan EEPROM adapter emulation
 // CSI 93C86S
 // Seiko S-29530
 // STMicroElectronic M93Cx6
 // https://www.st.com/resource/en/datasheet/m93c46-w.pdf
 // Microchip 93LCx6
+//  93LC06 =>   256 cells =>   32 x 8-bit or   16 x 16-bit
 //  93LC46 =>  1024 cells =>  128 x 8-bit or   64 x 16-bit
 //  93LC56 =>  2048 cells =>  256 x 8-bit or  128 x 16-bit
 //  93LC66 =>  4096 cells =>  512 x 8-bit or  256 x 16-bit
@@ -26,16 +26,26 @@ extern "C" {
 
 typedef struct {
 	void *memory;
-	int size;	// Size in bytes
-	int mask;	// Address mask (size - 1)
-	int address;	// Current address
-	short data;	// Current data value
-	u8 status;	// Status value
-	u8 adrBits;	// Number of bits in the address
-	u8 mode;
+	/** Size in bytes */
+	int size;
+	/** Address mask (size - 1) */
+	int mask;
+	/** Current address */
+	int address;
+	/** Current in data value */
+	short dataIn;
+	/** Current out data value */
+	short dataOut;
+	/** Status value */
+	u8 status;
+	/** Number of bits in the address */
+	u8 adrBits;
+	/** Write disabled */
+	u8 WDS;
 	u8 command;
-	u8 protect;	// Protect possible
-	u8 padding1;
+	/** Protect possible */
+	u8 protect;
+	u8 padding1[3];
 } WSEEPROM;
 
 void wsEepromReset(WSEEPROM *chip, int size, void *mem, bool allowProtect);
