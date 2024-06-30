@@ -2,8 +2,9 @@ WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
 
-V0.7.0 - 2024-05-30 (FluBBa)
+V0.7.0 - 2024-06-30 (FluBBa)
 	Added support for Write Enable/Disable.
+	Added support for Erase/Write All.
 	Fixed in/out buffer.
 	Fixed check of address when in protect mode.
 

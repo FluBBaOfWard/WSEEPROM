@@ -204,7 +204,7 @@ wsEepromCommandW:			;@ r0=eeptr, r1 = value
 	beq wsEepromDoRead
 	cmp r1,#0x20				;@ Write
 	beq wsEepromDoWrite
-	cmp r1,#0x40				;@ Erase
+	cmp r1,#0x40				;@ Erase/Short op
 	beq wsEepromDoErase
 	cmp r1,#0x80				;@ Write protect (only internal EEPROM)
 	beq wsEepromDoProtect
@@ -215,7 +215,7 @@ wsEepromDoRead:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	cmp r3,#0x6
+	cmp r3,#0x6					;@ Read?
 	bxne lr
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
@@ -232,7 +232,9 @@ wsEepromDoWrite:
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
-	cmp r3,#0x5
+	cmp r3,#0x4					;@ Sub Command?
+	beq wsEprSubCmd
+	cmp r3,#0x5					;@ Write?
 	bxne lr
 	bic r2,r2,r3,lsl r1
 	ldrb r1,[eeptr,#eepWDS]		;@ Write disabled?
@@ -281,11 +283,22 @@ wsEprSubCmd:
 	sub r1,r1,#2
 	mov r3,r2,lsr r1			;@ Sub command
 	ands r3,r3,#0xF				;@ 0=WDS
-	moveq r1,#1
+	eor r1,r3,#3
+	cmpne r3,#0x3				;@ WEN?
 	strbeq r1,[eeptr,#eepWDS]
-	cmp r3,#0x3
-	moveq r1,#0
-	strbeq r1,[eeptr,#eepWDS]
+	bxeq lr
+	cmp r3,#0x2					;@ WRAL?
+	mov r1,#-1
+	ldrheq r1,[eeptr,#eepDataOut]
+	cmpne r3,#0x1					;@ ERAL?
+	bxne lr
+
+	ldr r2,[eeptr,#eepMask]
+	ldr r3,[eeptr,#eepMemory]
+allLoop:
+	strh r1,[r3,r2]
+	subs r2,r2,#1
+	bpl allLoop
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDoProtect:
