@@ -3,7 +3,7 @@
 //  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2025 Fredrik Ahlström. All rights reserved.
 //
 
 #if !__ASSEMBLER__
@@ -25,7 +25,9 @@ eepAdrBits:		.byte 0		;@ Number of bits in the address
 eepWDS:			.byte 0		;@ Write disabled
 eepCommand:		.byte 0		;@
 eepProtect:		.byte 0		;@ Protect possible
-eepPadding1:	.space 3	;@
+eepStatCmd0:	.byte 0		;@ Bits cleared with command (except read)
+eepStatRead0:	.byte 0		;@ Bits cleared with read
+eepPadding1:	.space 1	;@
 wsEepromStateEnd:
 
 wsEepromSize:

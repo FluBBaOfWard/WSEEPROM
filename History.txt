@@ -1,6 +1,9 @@
 WSEEPROM revision history
 -=-=-=-=-=-=-=-=-=-=-=-=-
 
+V0.7.2 - 2025-02-17 (FluBBa)
+	Fixed initial write disable.
+	Fixed bit 0 behaviour for cart.
 
 V0.7.0 - 2024-06-30 (FluBBa)
 	Added support for Write Enable/Disable.

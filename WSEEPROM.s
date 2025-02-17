@@ -3,7 +3,7 @@
 //  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2025 Fredrik Ahlström. All rights reserved.
 //
 
 #ifdef __arm__
@@ -51,6 +51,13 @@ wsEepromReset:				;@ In r0 = eeptr, r1 = size(in bytes), r2 = *memory
 	ldmfd sp!,{r0-r3,lr}
 	str r2,[eeptr,#eepMemory]
 	strb r3,[eeptr,#eepProtect]
+	cmp r3,#0
+	movne r2,#2					;@ Internal
+	moveq r2,#3					;@ Cart
+	strb r2,[eeptr,#eepStatCmd0]
+	movne r2,#1					;@ Internal
+	moveq r2,#0					;@ Cart
+	strb r2,[eeptr,#eepStatRead0]
 ;@----------------------------------------------------------------------------
 wsEepromSetSize:			;@ r0 = eeptr, r1 = size(in bytes)
 	.type wsEepromSetSize STT_FUNC
@@ -162,6 +169,7 @@ wsEepromStatusR:			;@ r0=eeptr
 	orreq r3,r3,#1				;@ Read done
 	cmp r1,#0x20				;@ Write
 	cmpne r1,#0x40				;@ Erase
+	cmpne r1,#0x80				;@ Protect/Abort
 	orreq r3,r3,#2				;@ W/E done
 	strb r3,[eeptr,#eepStatus]
 	mov r0,r2
@@ -204,8 +212,8 @@ wsEepromCommandW:			;@ r0=eeptr, r1 = value
 	beq wsEepromDoRead
 	cmp r1,#0x20				;@ Write
 	beq wsEepromDoWrite
-	cmp r1,#0x40				;@ Erase/Short op
-	beq wsEepromDoErase
+	cmp r1,#0x40				;@ Short op/Erase
+	beq wsEepromDoShort
 	cmp r1,#0x80				;@ Write protect (only internal EEPROM)
 	beq wsEepromDoProtect
 	bx lr						;@ Only 1 bit can be set
@@ -223,7 +231,8 @@ wsEepromDoRead:
 	ldrh r1,[r3,r2]
 	strh r1,[eeptr,#eepDataIn]
 	ldrb r1,[eeptr,#eepStatus]
-	bic r1,r1,#1
+	ldrb r2,[eeptr,#eepStatRead0]
+	bic r1,r1,r2
 	strb r1,[eeptr,#eepStatus]
 	bx lr
 ;@----------------------------------------------------------------------------
@@ -238,13 +247,14 @@ wsEepromDoWrite:
 	bxne lr
 	bic r2,r2,r3,lsl r1
 	ldrb r1,[eeptr,#eepWDS]		;@ Write disabled?
-	cmp r1,#0
+	cmp r1,#3
 	bxne lr
 	ldrb r1,[eeptr,#eepStatus]
 	tst r1,r1,lsr#8				;@ Write protect over 0x30?
 	cmpcs r2,#0x30
 	bxcs lr
-	bic r1,r1,#2
+	ldrb r3,[eeptr,#eepStatCmd0]
+	bic r1,r1,r3
 	strb r1,[eeptr,#eepStatus]
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
@@ -253,8 +263,12 @@ wsEepromDoWrite:
 	strh r1,[r3,r2]
 	bx lr
 ;@----------------------------------------------------------------------------
-wsEepromDoErase:
+wsEepromDoShort:
 ;@----------------------------------------------------------------------------
+	ldrb r1,[eeptr,#eepStatus]
+	ldrb r3,[eeptr,#eepStatCmd0]
+	bic r1,r1,r3
+	strb r1,[eeptr,#eepStatus]
 	ldrb r1,[eeptr,#eepAdrBits]
 	ldr r2,[eeptr,#eepAddress]
 	mov r3,r2,lsr r1
@@ -264,14 +278,12 @@ wsEepromDoErase:
 	bxne lr
 	bic r2,r2,r3,lsl r1
 	ldrb r1,[eeptr,#eepWDS]		;@ Write disabled?
-	cmp r1,#0
+	cmp r1,#3
 	bxne lr
 	ldrb r1,[eeptr,#eepStatus]
 	tst r1,r1,lsr#8				;@ Write protect over 0x30?
 	cmpcs r2,#0x30
 	bxcs lr
-	bic r1,r1,#2
-	strb r1,[eeptr,#eepStatus]
 	ldr r3,[eeptr,#eepMask]
 	and r2,r3,r2,lsl#1
 	ldr r3,[eeptr,#eepMemory]
@@ -283,9 +295,8 @@ wsEprSubCmd:
 	sub r1,r1,#2
 	mov r3,r2,lsr r1			;@ Sub command
 	ands r3,r3,#0xF				;@ 0=WDS
-	eor r1,r3,#3
 	cmpne r3,#0x3				;@ WEN?
-	strbeq r1,[eeptr,#eepWDS]
+	strbeq r3,[eeptr,#eepWDS]
 	bxeq lr
 	cmp r3,#0x2					;@ WRAL?
 	mov r1,#-1
@@ -293,12 +304,12 @@ wsEprSubCmd:
 	cmpne r3,#0x1					;@ ERAL?
 	bxne lr
 
-	ldr r2,[eeptr,#eepMask]
+	ldr r2,[eeptr,#eepSize]
 	ldr r3,[eeptr,#eepMemory]
 allLoop:
-	strh r1,[r3,r2]
-	subs r2,r2,#1
-	bpl allLoop
+	subs r2,r2,#2
+	strhpl r1,[r3],#2
+	bhi allLoop
 	bx lr
 ;@----------------------------------------------------------------------------
 wsEepromDoProtect:
@@ -307,6 +318,7 @@ wsEepromDoProtect:
 	cmp r1,#0
 	ldrb r1,[eeptr,#eepStatus]
 	orrne r1,r1,#0x80
+	bic r1,r1,#0x02
 	strb r1,[eeptr,#eepStatus]
 	bx lr
 

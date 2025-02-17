@@ -3,7 +3,7 @@
 //  Bandai WonderSwan EEPROM adapter emulation
 //
 //  Created by Fredrik Ahlström on 2021-11-10.
-//  Copyright © 2021-2024 Fredrik Ahlström. All rights reserved.
+//  Copyright © 2021-2025 Fredrik Ahlström. All rights reserved.
 //
 // CSI 93C86S
 // Seiko S-29530
@@ -45,7 +45,9 @@ typedef struct {
 	u8 command;
 	/** Protect possible */
 	u8 protect;
-	u8 padding1[3];
+	u8 statCmd0;
+	u8 statRead0;
+	u8 padding1[1];
 } WSEEPROM;
 
 void wsEepromReset(WSEEPROM *chip, int size, void *mem, bool allowProtect);

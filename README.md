@@ -1,4 +1,4 @@
-# WSEEPROM V0.7.0
+# WSEEPROM V0.7.2
 
 WonderSwan EEPROM adapter emulator for ARM 32.
 
